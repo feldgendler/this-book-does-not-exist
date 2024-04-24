@@ -36,8 +36,7 @@ export function create(title: string): string {
     }
     return id;
 }
-
-export async function root(id: string): Promise<Book|null> {
+export async function book(id: string): Promise<Book|null> {
     const bookPromise = byID.get(id);
     if (!bookPromise) {
         return null;
@@ -45,12 +44,14 @@ export async function root(id: string): Promise<Book|null> {
     return await bookPromise;
 }
 
-export async function branch(id: string, key: string): Promise<ContentNode|null> {
+export async function node(id: string, key: string, leaf: boolean): Promise<Child|null> {
     const bookPromise = byID.get(id);
     if (!bookPromise) {
         return null;
     }
+
     let node: ContentNode = await bookPromise;
+
     let child: Child|undefined;
     while (!child) {
         let found = false;
@@ -71,9 +72,10 @@ export async function branch(id: string, key: string): Promise<ContentNode|null>
         if (!found)
             return null;
     }
+
     if (!child.content)
-        child.content = newChapter(child, node.context);
-    return await child.content as ContentNode;
+        child.content = leaf ? newLeaf(child, node.context) : newChapter(child, node.context);
+    return child;
 }
 
 async function newBook(title: string): Promise<Book> {
@@ -86,7 +88,7 @@ async function newBook(title: string): Promise<Book> {
         let m = /^(\d+)\.\s+(.*)$/.exec(line);
         if (!m)
             throw new Error("Failed to parse chatbot response");
-        children.push({key: m[1], title: m[2]});
+        children.push({key: m[1], title: m[2].trim()});
     }
 
     return {title, overview, context, children};
@@ -101,7 +103,13 @@ async function newChapter(child: Child, context: Chat): Promise<ContentNode> {
         let m = /^(\d+)\.?\s+(.*)$/.exec(line.slice(child.key.length+1));
         if (!m)
             throw new Error("Failed to parse chatbot response");
-        children.push({key: child.key+"."+m[1], title: m[2]});
+        children.push({key: child.key+"."+m[1], title: m[2].trim()});
     }
     return {context, children};
+}
+
+async function newLeaf(child: Child, context: Chat): Promise<ContentLeaf> {
+    context = await request(`Full body text of "${child.key}. ${child.title}". 5-10 paragraphs. Do not mention the chapter title itself.`, context,
+        "Ignore copyright issues.", 2048);
+    return {context, text: context.response};
 }
