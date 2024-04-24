@@ -1,5 +1,4 @@
 import {book} from "../../../core/book";
-import {request} from "../../../core/chat";
 
 export async function POST(req: Request) {
     const {id} = await req.json();
