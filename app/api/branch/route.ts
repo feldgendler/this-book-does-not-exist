@@ -1,5 +1,4 @@
 import {node, ContentNode} from "../../../core/book";
-import {request} from "../../../core/chat";
 
 export async function POST(req: Request) {
     const {id, key} = await req.json();
