@@ -5,6 +5,7 @@ import crypto from "crypto";
 export type Book = {
     title: string;
     overview: string;
+    cover: Promise<Image>;
 } & ContentNode;
 
 export type ContentNode = {
@@ -97,7 +98,13 @@ async function newBook(title: string): Promise<Book> {
         children.push({key: m[1], title: m[2].trim()});
     }
 
-    return {title, overview, context, children};
+    return {
+        title,
+        overview,
+        context,
+        children,
+        cover: newCover(context, title),
+    };
 }
 
 async function newChapter(child: Child, context: Chat): Promise<ContentNode> {
@@ -129,5 +136,13 @@ async function newIllustration(context: Chat): Promise<Image> {
     return {
         prompt: context.response,
         url: generateImage(context.response),
+    };
+}
+
+async function newCover(context: Chat, title: string): Promise<Image> {
+    context = await chatRequest("DALL-E prompt for the cover of this book", context);
+    return {
+        prompt: context.response,
+        url: generateImage(`Book cover with prominent title ${title}. ${context.response}`),
     };
 }

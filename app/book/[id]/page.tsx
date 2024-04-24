@@ -28,7 +28,9 @@ export default function Book({params}: {params: {id: string}}) {
         startLoading();
     }, [params.id]);
 
-    return <article className="prose md:container md:mx-auto mt-24">
+    const imageURL = `/api/cover?id=${params.id}`;
+
+return <article className="prose md:container md:mx-auto mt-24">
         {!title && <div className="flex flex-col gap-4 w-96">
             <div className="skeleton h-32 w-56"></div>
             <div className="skeleton h-4 w-28"></div>
@@ -41,6 +43,9 @@ export default function Book({params}: {params: {id: string}}) {
             <span className="italic">This book does not exist.</span>
             <Link href="/" className="btn btn-xs btn-outline mx-2">Hallucinate another</Link>
         </aside>}
+        {title && <a href={imageURL} className="block cursor-zoom-in float-right m-8 size-128" target="_blank">
+            <img className="m-0 skeleton" src={imageURL} width={512} height={512} alt={title} />
+        </a>}
         {overview && <p>{overview}</p>}
         {contents && <h2 className="mb-0">Table of Contents</h2>}
         {contents && <aside className="italic">Click on the chapters to explore</aside>}
