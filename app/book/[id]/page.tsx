@@ -26,7 +26,7 @@ export default function Book({params}: {params: {id: string}}) {
             setContents(book.children);
         }
         startLoading();
-    }, []) // start only once
+    }, [params.id]);
 
     return <article className="prose md:container md:mx-auto mt-24">
         {!title && <div className="flex flex-col gap-4 w-96">
@@ -44,18 +44,12 @@ export default function Book({params}: {params: {id: string}}) {
         {overview && <p>{overview}</p>}
         {contents && <h2 className="mb-0">Table of Contents</h2>}
         {contents && <aside className="italic">Click on the chapters to explore</aside>}
-        {contents && <ol className="list-none">{contents.map((it) => <ContentNode bookID={params.id} item={it} />)}</ol>}
+        {contents && <ol className="list-none">{contents.map((it) => <ContentNode key={it.key} bookID={params.id} item={it} />)}</ol>}
     </article>;
 }
 
 function ContentNode({bookID, item}: {bookID: string, item: Item}) {
     let [expanded, setExpanded] = useState(false);
-    if (item.leaf) {
-        return <li key={item.key}>
-            {item.key}. <Link href={`/book/${bookID}/${item.key}`} className="no-underline hover:underline font-normal">{item.title}</Link>
-        </li>;
-    }
-
     let [nested, setNested] = useState<Item[]|undefined>();
 
     useEffect(() => {
@@ -70,15 +64,21 @@ function ContentNode({bookID, item}: {bookID: string, item: Item}) {
         }
         if (expanded && !nested)
             startLoading();
-    }, [expanded])
+    }, [bookID, item, nested, expanded])
 
-    return <li key={item.key}>
+    if (item.leaf) {
+        return <li>
+            {item.key}. <Link href={`/book/${bookID}/${item.key}`} className="no-underline hover:underline font-normal">{item.title}</Link>
+        </li>;
+    }
+
+    return <li>
         <span className="cursor-pointer" onClick={() => setExpanded(!expanded)}>{item.key}. {item.title}</span>
         {expanded && !nested && <div className="flex flex-col gap-4 w-48 ml-8">
             <div className="skeleton h-4 w-full"></div>
             <div className="skeleton h-4 w-full"></div>
             <div className="skeleton h-4 w-full"></div>
         </div>}
-        {expanded && nested && <ol className="list-none">{nested.map((it) => <ContentNode bookID={bookID} item={it} />)}</ol>}
+        {expanded && nested && <ol className="list-none">{nested.map((it) => <ContentNode key={it.key} bookID={bookID} item={it} />)}</ol>}
     </li>;
 }
