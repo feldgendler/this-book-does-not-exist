@@ -39,7 +39,7 @@ export default function Book({params}: {params: {id: string}}) {
         {title && <h1 className="mb-2">{title}</h1>}
         {title && <aside>
             <span className="italic">This book does not exist.</span>
-            <Link href="/" className="btn btn-xs btn-outline mx-2">Generate another</Link>
+            <Link href="/" className="btn btn-xs btn-outline mx-2">Hallucinate another</Link>
         </aside>}
         {overview && <p>{overview}</p>}
         {contents && <h2 className="mb-0">Table of Contents</h2>}
