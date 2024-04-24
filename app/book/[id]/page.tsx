@@ -49,7 +49,7 @@ export default function Book({params}: {params: {id: string}}) {
                         {contents && <ol className="list-none">{contents.map((it) => <ContentNode key={it.key} bookID={params.id} item={it} />)}</ol>}
                     </div>
                     <div className="card card-bordered border-4 border-black w-1/2 flex flex-col items-center justify-start">
-                        {overview && <h2 className="mb-2 mt-4 text-center">Overview</h2>}
+                        {overview && <h2 className="mb-2 mt-4 text-center">Book Overview</h2>}
                         {overview && <p className="mt-12 whitespace-normal max-w-md">{overview}</p>}
 
                     </div>

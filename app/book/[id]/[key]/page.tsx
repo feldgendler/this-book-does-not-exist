@@ -29,7 +29,17 @@ export default function Page({params}: {params: {id: string, key: string}}) {
             <div className="skeleton h-4 w-full"></div>
             <div className="skeleton h-4 w-full"></div>
         </div>}
-        {title && <h1 className="mb-2">{params.key}. {title}</h1>}
-        {text && <Markdown skipHtml={true}>{text}</Markdown>}
+        <div className="flex">
+            <div className="card card-bordered border-4 border-black w-1/2 aspect-w-2 aspect-h-3 flex flex-col justify-start items-center ">
+                {title && <h1 className="mb-2">{params.key}. {title}</h1>}
+                {text && <Markdown skipHtml={true}>{text}</Markdown>}
+            </div>
+            <div className="card card-bordered border-4 border-black w-1/2 aspect-w-2 aspect-h-3 flex flex-col justify-start items-center ">
+                {text && <h1>Insert Illustration</h1>}
+
+            </div>
+        </div>
+       
+        
     </article>;
 }
