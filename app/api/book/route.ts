@@ -6,7 +6,7 @@ export async function POST(req: Request) {
 
     const book = await root(id);
     if (!book) {
-        throw new Response("Book not found", {status: 404})
+        return new Response("Book not found", {status: 404})
     }
     return Response.json({
         title: book.title,
