@@ -32,8 +32,8 @@ export default function Page({params}: {params: {id: string, key: string}}) {
             <div className="skeleton h-4 w-full"></div>
         </div>}
         {title && <h1 className="mb-2">{params.key}. {title}</h1>}
-        {title && <a href={imageURL} className="block cursor-zoom-in float-right m-8" target="_blank">
-            <img src={imageURL} width={512} height={512} alt={title} />
+        {title && <a href={imageURL} className="block cursor-zoom-in float-right m-8 size-128" target="_blank">
+            <img className="m-0 skeleton" src={imageURL} width={512} height={512} alt={title} />
         </a>}
         {text && <Markdown skipHtml={true}>{text}</Markdown>}
     </article>;
