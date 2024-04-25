@@ -45,12 +45,13 @@ I intend to start by using OpenAI completions API to generate the book content. 
 ## Trying it out
 
 ```bash
-npm run dev
+npm run build
+npm start
 ```
 
 Open http://localhost:3000 with your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Unfortunately, `npm run dev` doesn't work because auto-reloading ruins the in-memory cache of generated content.
 
 ### Tech stack
 
