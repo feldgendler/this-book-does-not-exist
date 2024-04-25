@@ -140,7 +140,7 @@ async function newIllustration(context: Chat): Promise<Image> {
 }
 
 async function newCover(context: Chat, title: string): Promise<Image> {
-    context = await chatRequest("DALL-E prompt for the cover of this book", context);
+    context = await chatRequest("Generate an image to be used as the book cover for this book, with the title prominently displayed. The book cover should take up the entire image space", context);
     return {
         prompt: context.response,
         url: generateImage(`Book cover with prominent title ${title}. ${context.response}`),
