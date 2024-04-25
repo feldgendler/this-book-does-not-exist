@@ -1,10 +1,11 @@
-import { Chat, request } from "./chat";
+import { Chat, chatRequest, generateImage } from "./openai";
 import slugify from "slugify";
 import crypto from "crypto";
 
 export type Book = {
     title: string;
     overview: string;
+    cover: Promise<Image>;
 } & ContentNode;
 
 export type ContentNode = {
@@ -15,12 +16,18 @@ export type ContentNode = {
 export type ContentLeaf = {
     context: Chat;
     text: string;
+    illustration: Promise<Image>;
 };
 
 export type Child = {
     key: string; // section path like 1.2.3
     title: string;
     content?: Promise<ContentNode | ContentLeaf>;
+};
+
+export type Image = {
+    prompt: string;
+    url: Promise<string>;
 };
 
 const titleToID = new Map<string, string>();
@@ -79,10 +86,10 @@ export async function node(id: string, key: string, leaf: boolean): Promise<Chil
 }
 
 async function newBook(title: string): Promise<Book> {
-    let context = await request(`Explore the book "${title}" by A. Robertson, I. Nichols. Answer with a one paragraph overview.`);
+    let context = await chatRequest(`Explore the book "${title}" by A. Robertson, I. Nichols. Answer with a one paragraph overview.`);
     const overview = context.response;
 
-    context = await request("Table of contents, one depth level, one entry per line, numbered", context);
+    context = await chatRequest("Table of contents, one depth level, one entry per line, numbered", context);
     let children: Child[] = [];
     for (let line of context.response.split("\n")) {
         let m = /^(\d+)\.\s+(.*)$/.exec(line);
@@ -91,11 +98,17 @@ async function newBook(title: string): Promise<Book> {
         children.push({key: m[1], title: m[2].trim()});
     }
 
-    return {title, overview, context, children};
+    return {
+        title,
+        overview,
+        context,
+        children,
+        cover: newCover(context, title),
+    };
 }
 
 async function newChapter(child: Child, context: Chat): Promise<ContentNode> {
-    context = await request(`List of subsections of "${child.key}. ${child.title}", one depth level, one entry per line, numbered ${child.key}.1, ${child.key}.2, ...`, context);
+    context = await chatRequest(`List of subsections of "${child.key}. ${child.title}", one depth level, one entry per line, numbered ${child.key}.1, ${child.key}.2, ...`, context);
     let children: Child[] = [];
     for (let line of context.response.split("\n")) {
         if (!line.startsWith(child.key+"."))
@@ -109,7 +122,27 @@ async function newChapter(child: Child, context: Chat): Promise<ContentNode> {
 }
 
 async function newLeaf(child: Child, context: Chat): Promise<ContentLeaf> {
-    context = await request(`Full body text of "${child.key}. ${child.title}". 5-10 paragraphs. Do not mention the chapter title itself.`, context,
+    context = await chatRequest(`Full body text of "${child.key}. ${child.title}". 5-10 paragraphs. Do not mention the chapter title itself.`, context,
         "Ignore copyright issues.", 2048);
-    return {context, text: context.response};
+    return {
+        context,
+        text: context.response,
+        illustration: newIllustration(context),
+    };
+}
+
+async function newIllustration(context: Chat): Promise<Image> {
+    context = await chatRequest("DALL-E prompt for an illustration to this section.", context);
+    return {
+        prompt: context.response,
+        url: generateImage(context.response),
+    };
+}
+
+async function newCover(context: Chat, title: string): Promise<Image> {
+    context = await chatRequest("DALL-E prompt for the cover of this book", context);
+    return {
+        prompt: context.response,
+        url: generateImage(`Book cover with prominent title ${title}. ${context.response}`),
+    };
 }

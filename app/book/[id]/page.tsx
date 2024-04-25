@@ -28,6 +28,8 @@ export default function Book({params}: {params: {id: string}}) {
         startLoading();
     }, [params.id]);
 
+    const imageURL = `/api/cover?id=${params.id}`;
+
     return (
         <article className="prose md:container md:mx-auto mt-24">
             {!title && (
@@ -53,6 +55,9 @@ export default function Book({params}: {params: {id: string}}) {
                         {overview && <p className="mt-12 whitespace-normal max-w-md">{overview}</p>}
 
                     </div>
+                    {title && <a href={imageURL} className="block cursor-zoom-in float-right m-8 size-128" target="_blank">
+                    <img className="m-0 skeleton" src={imageURL} width={512} height={512} alt={title} />
+        </a>}
                 </div>
                 {title && (
                             <aside className="flex items-center">
