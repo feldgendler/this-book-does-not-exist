@@ -45,6 +45,7 @@ I intend to start by using OpenAI completions API to generate the book content. 
 ## Trying it out
 
 ```bash
+export OPENAI_API_KEY=<your OpenAI API key>
 npm run build
 npm start
 ```
